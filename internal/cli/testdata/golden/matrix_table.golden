@@ -1,0 +1,10 @@
+claude
+Model              Price  Charlie  Alpha     Bravo
+claude-haiku-5-5   free   ✗ key    ✓ ok*     ✓ ok*
+claude-sonnet-5-5  paid   ✗ key    ✓ ok      ✗ budget
+claude-opus-5-5    paid   ✗ key    ⊘ policy  ⊘ policy
+
+gpt
+Model        Price    Charlie  Alpha  Bravo
+gpt-example  unknown  ✗ key    ✓ ok*  ✓ ok*
+ok* = valid key, free model (budget not checked)

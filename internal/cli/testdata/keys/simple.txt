@@ -1,0 +1,8 @@
+# simple format
+Alpha=sk-FAKE-SIMPLE-0001
+
+Bravo=sk-FAKE-SIMPLE-0002
+   Charlie.Two=sk-FAKE-SIMPLE-0003   
+sk-FAKE-SIMPLE-0004
+# comment between bare keys
+sk-FAKE-SIMPLE-0005

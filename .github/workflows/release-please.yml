@@ -1,0 +1,113 @@
+name: Release Please
+
+# One workflow does the whole chain: a tag or Release made with GITHUB_TOKEN
+# starts no other workflow, so the publisher runs in this same run.
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Two pushes to main never run release-please at once.
+    concurrency:
+      group: release-please
+      cancel-in-progress: false
+    # issues: write is for the autorelease labels (never set skip-labeling).
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - id: rp
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # A tag on a broken commit must not publish. Tests run in their own job: jobs
+  # share neither GITHUB_ENV nor PATH, so test code cannot change the environment
+  # of the job that holds the secret. This job has no secret at all.
+  test:
+    name: Test
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Qualified: an unqualified name resolves to a branch before a tag.
+          ref: refs/tags/${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: go test -count=1 ./...
+
+  goreleaser:
+    name: GoReleaser
+    needs: [release-please, test]
+    # Singular release_created: it is unset when nothing was released.
+    # (releases_created is the string "false", which is truthy.)
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Two releases never publish at once.
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The tag release-please just created; GoReleaser takes the version from it.
+          # Qualified: an unqualified name resolves to a branch before a tag.
+          ref: refs/tags/${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      # A tag pushed by hand to a commit that is not in the history of main must
+      # not publish. The commit is compared with the main this checkout fetched,
+      # not with the commit that triggered the run, so a release PR merged while
+      # this run was waiting or running still passes. Ancestry, not equality:
+      # later merges advance main.
+      - name: Require the tag commit to be on main
+        run: |
+          git merge-base --is-ancestor HEAD origin/main || {
+            echo "The tag commit is not part of the history of main"
+            exit 1
+          }
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          # No cache in the job that holds the tokens: runs on main can write it.
+          cache: false
+      # export-env stays false, so the PAT is a masked step output, not an env var.
+      # The action downloads op without a checksum check, so the version is pinned.
+      - id: op
+        uses: 1password/load-secrets-action@70062d7a876d3eb6334754fa26efd2fbd90c32f2 # v5.0.1
+        with:
+          version: 2.42.0
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          TAP_GITHUB_TOKEN: op://github-apps/homebrew-tap/token
+      - uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
+        with:
+          distribution: goreleaser
+          version: v2.20.2
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fine-grained PAT, shoootyou/homebrew-tap only, Contents: write.
+          TAP_GITHUB_TOKEN: ${{ steps.op.outputs.TAP_GITHUB_TOKEN }}

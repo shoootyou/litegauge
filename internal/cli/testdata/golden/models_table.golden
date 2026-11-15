@@ -1,0 +1,9 @@
+claude
+Model              Price
+claude-haiku-5-5   free
+claude-sonnet-5-5  paid
+claude-opus-5-5    paid
+
+gpt
+Model        Price
+gpt-example  unknown

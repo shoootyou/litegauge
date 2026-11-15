@@ -1,0 +1,5 @@
+# scratch notes
+
+Alpha=sk-FAKE-CRLF-0001
+Bravo=sk-FAKE-CRLF-0002
+sk-FAKE-CRLF-0003

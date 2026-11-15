@@ -1,0 +1,4 @@
+Key     env
+Model   claude-sonnet-5-5 (paid)
+Result  ✗ No budget  HTTP 422 · N ms
+Detail  The budget of this key for this model is used up.

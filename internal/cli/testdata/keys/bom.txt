@@ -1,0 +1,2 @@
+﻿Alpha=sk-FAKE-BOM-0001
+sk-FAKE-BOM-0002
