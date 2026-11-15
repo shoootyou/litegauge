@@ -17,6 +17,14 @@ Every probe spends a little of the key's budget, and the key may belong to a poo
 
 ## Install
 
+With Homebrew (the cask is for macOS and Linux):
+
+```
+brew install shoootyou/tap/litegauge
+```
+
+Or build it from source:
+
 ```
 go build -o litegauge ./cmd/litegauge
 ```

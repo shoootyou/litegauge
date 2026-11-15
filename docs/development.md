@@ -26,7 +26,7 @@ skills/litegauge/SKILL.md    the agent skill that tells an agent how to run the 
 .github/workflows/ci.yml     CI: checks on every pull request, plus the release snapshot
 .github/workflows/release-please.yml  the one release workflow: release PR, tag, release, tests, then GoReleaser
 release-please-config.json   release-please settings: Go release type, first version, pre-1.0 bump rule
-.release-please-manifest.json  the last released version (empty until the first release)
+.release-please-manifest.json  the last released version
 .goreleaser.yaml             the release build: targets, archives, checksums, the Homebrew cask
 ```
 
@@ -185,7 +185,7 @@ Only `feat`, `fix`, `perf` and `revert` commits appear in the notes and open a r
 
 ### The first release
 
-The first release is `v0.1.0`. `initial-version` in `release-please-config.json` and an empty manifest (`{}`) in `.release-please-manifest.json` make release-please propose `0.1.0`; without them it would propose `1.0.0`. There is no earlier tag, so the first release body has no compare link, and `CHANGELOG.md` does not exist until the first release PR creates it.
+The first release was `v0.1.0`. `initial-version` in `release-please-config.json` is `0.1.0`, and before the release `.release-please-manifest.json` was `{}`; the first release PR (#2) was titled `chore(main): release 0.1.0`. The release body and the `0.1.0` entry of `CHANGELOG.md` have no compare link, and the first release PR created `CHANGELOG.md`.
 
 ### What `release-please.yml` does
 
@@ -199,7 +199,7 @@ If the `test` job fails, `goreleaser` does not run: no archive is attached and t
 
 The `release-please` and `goreleaser` jobs each sit in a concurrency group that never cancels a running run (`release-please` and `release`). A run that is still waiting is another matter: GitHub keeps one waiting run per group, so a newer one replaces it. For `release-please` that is harmless, because the newer run computes the release PR again from `main`. For `goreleaser` the replaced run is cancelled and its release gets no archives and no cask, so re-run it from the Actions tab. That takes two releases in quick succession.
 
-A release PR opened with `GITHUB_TOKEN` is opened by `github-actions[bot]`, so a maintainer can approve it. GitHub's documentation ("Trigger a workflow") says that events triggered by `GITHUB_TOKEN` do not create a new workflow run, except `workflow_dispatch` and `repository_dispatch`, and `pull_request` events of type `opened`, `synchronize` or `reopened`. Those create runs in an approval-required state, which a user with write access starts with "Approve workflows to run"; other `pull_request` types, such as `labeled` or `edited`, create none. The release PR only changes `CHANGELOG.md` and `.release-please-manifest.json`, and the repository rules do not require its checks, so you can merge it without running them. After any squash merge to `main`, the bot updates its open release PR, after which an earlier approval may no longer apply if the repository dismisses stale approvals. Re-check the head of the release PR before you approve and merge it.
+The 0.1.0 release PR (#2) was approved by `shoootyou`. GitHub's documentation ("Trigger a workflow") says that events triggered by `GITHUB_TOKEN` will not create a new workflow run, with these exceptions: `workflow_dispatch` and `repository_dispatch` events, and `pull_request` events of type `opened`, `synchronize` or `reopened`, which create runs in an approval-required state; other `pull_request` types, such as `labeled`, `edited` or `closed`, create none. On the 0.1.0 release PR the `pull_request` CI run (run 43661495825) ended `completed` with the conclusion `failure` and 0 jobs, and the check list of the PR shows only the GitGuardian check. The release PR only changes `CHANGELOG.md` and `.release-please-manifest.json`, and the repository rules do not require its checks, so you can merge it without running them. After any squash merge to `main`, the `release-please` workflow, which runs on every push to `main`, updates its open release PR, and the `main` ruleset dismisses an approval when new commits are pushed to a pull request, so an earlier approval may no longer apply: re-check the head of the release PR before you approve and merge it.
 
 If the `test` or the `goreleaser` job fails, use "Re-run failed jobs" on that workflow run. The tag must still be on `main` when you do. Two failures of `goreleaser` are known:
 
