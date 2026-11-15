@@ -1,0 +1,89 @@
+results:
+  - key: "Charlie"
+    model: "claude-haiku-5-5"
+    group: "claude"
+    price: "free"
+    verdict: "invalid_key"
+    http_status: 401
+    latency_ms: 0
+  - key: "Alpha"
+    model: "claude-haiku-5-5"
+    group: "claude"
+    price: "free"
+    verdict: "key_valid"
+    http_status: 200
+    latency_ms: 0
+  - key: "Bravo"
+    model: "claude-haiku-5-5"
+    group: "claude"
+    price: "free"
+    verdict: "key_valid"
+    http_status: 200
+    latency_ms: 0
+  - key: "Charlie"
+    model: "claude-sonnet-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "invalid_key"
+    http_status: 401
+    latency_ms: 0
+  - key: "Alpha"
+    model: "claude-sonnet-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "ok"
+    http_status: 200
+    latency_ms: 0
+  - key: "Bravo"
+    model: "claude-sonnet-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "no_budget"
+    http_status: 422
+    latency_ms: 0
+  - key: "Charlie"
+    model: "claude-opus-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "invalid_key"
+    http_status: 401
+    latency_ms: 0
+  - key: "Alpha"
+    model: "claude-opus-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "blocked"
+    http_status: 400
+    latency_ms: 0
+  - key: "Bravo"
+    model: "claude-opus-5-5"
+    group: "claude"
+    price: "paid"
+    verdict: "blocked"
+    http_status: 400
+    latency_ms: 0
+  - key: "Charlie"
+    model: "gpt-example"
+    group: "gpt"
+    price: "unknown"
+    verdict: "invalid_key"
+    http_status: 401
+    latency_ms: 0
+  - key: "Alpha"
+    model: "gpt-example"
+    group: "gpt"
+    price: "unknown"
+    verdict: "key_valid"
+    http_status: 200
+    latency_ms: 0
+  - key: "Bravo"
+    model: "gpt-example"
+    group: "gpt"
+    price: "unknown"
+    verdict: "key_valid"
+    http_status: 200
+    latency_ms: 0
+keys:
+  - "Charlie"
+  - "Alpha"
+  - "Bravo"

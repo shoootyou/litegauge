@@ -1,0 +1,11 @@
+*.keys
+*keys*.json
+*keys*.txt
+.env*
+*.env
+secrets*
+/litegauge
+*.test
+!internal/cli/testdata/keys/
+!internal/cli/testdata/keys/*
+/dist/

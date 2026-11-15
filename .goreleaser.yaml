@@ -1,0 +1,73 @@
+# GoReleaser v2 config. Docs: https://goreleaser.com/customization/
+version: 2
+
+project_name: litegauge
+
+builds:
+  - id: litegauge
+    main: ./cmd/litegauge
+    binary: litegauge
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    # {{ .Version }} has no leading "v"; versions.String() adds it.
+    ldflags:
+      - -s -w -X github.com/shoootyou/litegauge/internal/versions.Version={{ .Version }}
+
+archives:
+  - id: litegauge
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+  algorithm: sha256
+
+# release-please writes the release notes.
+changelog:
+  disable: true
+
+release:
+  prerelease: auto
+  draft: false
+  # A re-run after the assets were attached replaces them instead of failing on a 422.
+  replace_existing_artifacts: true
+
+# Pushes Casks/litegauge.rb to the tap; a pre-release does not (skip_upload: auto).
+homebrew_casks:
+  - name: litegauge
+    binaries: [litegauge]
+    directory: Casks
+    homepage: https://github.com/shoootyou/litegauge
+    description: Checks whether a LiteLLM key has budget for a model.
+    license: MIT
+    skip_upload: auto
+    commit_author:
+      name: github-actions[bot]
+      email: github-actions[bot]@users.noreply.github.com
+    commit_msg_template: "{{ .ProjectName }} {{ .Version }}"
+    repository:
+      owner: shoootyou
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    # The binary is not signed or notarized: drop the quarantine flag on macOS.
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/litegauge"]
+          end
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-devel"

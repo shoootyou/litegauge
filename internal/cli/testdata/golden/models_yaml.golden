@@ -1,0 +1,13 @@
+models:
+  - model: "claude-haiku-5-5"
+    group: "claude"
+    price: "free"
+  - model: "claude-sonnet-5-5"
+    group: "claude"
+    price: "paid"
+  - model: "claude-opus-5-5"
+    group: "claude"
+    price: "paid"
+  - model: "gpt-example"
+    group: "gpt"
+    price: "unknown"
