@@ -75,6 +75,8 @@ Model        Price
 gpt-example  unknown
 ```
 
+With Homebrew or a release binary on your `PATH`, drop the `./` in front of `litegauge` in these commands.
+
 2. Probe one key on one model:
 
 ```
